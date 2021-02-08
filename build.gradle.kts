@@ -1,38 +1,42 @@
-/**
- * 플러그인 추가하기 
- * Gradle은 Jetbrain에서 제공하는 플러그인으로 JVM용 코틀린 컴파일을 지원한다.
- * 코틀린 Gradle 플러그인은 Gradle 플러그인 레포지토리에 등록되어있고 아래의 내용으로 Import 한다.
- */
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-// plugin을 제일 위에 선언해주고 그 아래에는 순서 무관하다.
 plugins {
-
-	// Add gradle task from java library plugin 
-	// build, complieJava, javadoc, jar, etc...
-	`java-library`		
-	 
-	kotlin("jvm") version "1.3.50"	// Add kotlin plugin in gradle
+	id("org.springframework.boot") version "2.4.2"
+	id("io.spring.dependency-management") version "1.0.11.RELEASE"
+	kotlin("jvm") version "1.4.21"
+	kotlin("plugin.spring") version "1.4.21"
 }
 
-ext {
-  javaVersion='1.8'
-}
+group = "com.cookbook"
+version = "0.0.1-SNAPSHOT"
+java.sourceCompatibility = JavaVersion.VERSION_11
 
-sourceCompatibility = javaVersion
-targetCompatibility = javaVersion
-
-javadoc {
-    options.encoding = 'UTF-8'
-}
-
-sourceSets.main {
-    java.srcDirs("src/main/kotlin", "src/main/java")
+configurations {
+	compileOnly {
+		extendsFrom(configurations.annotationProcessor.get())
+	}
 }
 
 repositories {
-	jcenter()
+	mavenCentral()
 }
-	
+
 dependencies {
-	implementation(kotlin("stdlib'))	// Add kotlin standard library when compliling
+	implementation("org.springframework.boot:spring-boot-starter")
+	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+	compileOnly("org.projectlombok:lombok")
+	annotationProcessor("org.projectlombok:lombok")
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
+}
+
+tasks.withType<KotlinCompile> {
+	kotlinOptions {
+		freeCompilerArgs = listOf("-Xjsr305=strict")
+		jvmTarget = "11"
+	}
+}
+
+tasks.withType<Test> {
+	useJUnitPlatform()
 }
